@@ -2,11 +2,11 @@
 version: 2
 
 # sources:
-#   - name: sf_bikeshare
+#   - name: san_francisco
+#     schema: public
 #     tables:
 #       - name: bikeshare_trips
 #       - name: bikeshare_stations
-#       - name: bikeshare_status
 
 
 models:
@@ -25,7 +25,12 @@ models:
       description: "make a copy of the trips table"
       columns:
           - name: trip_id
+            tests:
+              - unique
+              - not_null
           - name: duration_sec
+            tests: 
+              - not_null
           - name: start_date
           - name: start_station_name
           - name: start_station_id
@@ -34,6 +39,8 @@ models:
           - name: end_station_id
           - name: bike_number
           - name: zip_code
+            tests:
+              - not_null
           - name: subscriber_type
 
     # - name: my_second_dbt_model
