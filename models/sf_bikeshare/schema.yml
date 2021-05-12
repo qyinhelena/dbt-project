@@ -1,0 +1,47 @@
+
+version: 2
+
+# sources:
+#   - name: sf_bikeshare
+#     tables:
+#       - name: bikeshare_trips
+#       - name: bikeshare_stations
+#       - name: bikeshare_status
+
+
+models:
+    - name: bikeshare_stations
+      description: "make a copy of the stations table"
+      columns:
+          - name: station_id
+          - name: name
+          - name: latitude
+          - name: longitude
+          - name: dockcount
+          - name: landmark
+          - name: installation_date
+
+    - name: bikeshare_trips
+      description: "make a copy of the trips table"
+      columns:
+          - name: trip_id
+          - name: duration_sec
+          - name: start_date
+          - name: start_station_name
+          - name: start_station_id
+          - name: end_date
+          - name: end_station_name
+          - name: end_station_id
+          - name: bike_number
+          - name: zip_code
+          - name: subscriber_type
+
+    # - name: my_second_dbt_model
+    #   description: "A starter dbt model"
+    #   columns:
+    #       - name: id
+    #         description: "The primary key for this table"
+    #         tests:
+    #             - unique
+    #             - not_null
+
