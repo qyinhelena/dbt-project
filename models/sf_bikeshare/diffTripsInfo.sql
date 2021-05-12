@@ -10,6 +10,8 @@ add_end_loc AS (
     WHERE s.station_id = a.end_station_id
 )
 
-SELECT add_end_loc.*,
+SELECT *,
+       ST_GeogPoint(start_lon, start_lat) AS geo_start,
+       ST_GeogPoint(end_lon, end_lat) AS geo_end,
        ST_Distance(ST_GeogPoint(start_lon, start_lat), ST_GeogPoint(end_lon, end_lat)) AS distance_meters
 FROM add_end_loc

@@ -1,6 +1,14 @@
+{{ config(materialized='incremental') }}
+
+WITH temp AS (
+    SELECT * FROM {{ ref('bikeshare_trips') }}
+    WHERE start_station_id != end_station_id
+)
 SELECT *, EXTRACT(YEAR FROM start_date) AS year,
        EXTRACT(MONTH FROM start_date) AS month,
-       EXTRACT(DAYOFWEEK FROM start_date) dayofweek,
-       DATE_DIFF(DATE(end_date), DATE(start_date), DAY) AS days_diff
-FROM {{ ref('bikeshare_trips') }} AS t
-WHERE t.start_station_id != t.end_station_id
+       EXTRACT(DAYOFWEEK FROM start_date) AS dayofweek
+FROM temp
+
+{% if is_incremental() %}
+WHERE start_date > (SELECT MAX(start_date) FROM {{ this }})
+{% endif %}
