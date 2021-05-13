@@ -1,4 +1,9 @@
-Welcome to your new dbt project!
+### Welcome to my dbt project!
+### Data Pipeline for San Francisco Bikeshare Public Data on Bigquery
+
+### Data source: 
+https://console.cloud.google.com/marketplace/product/san-francisco-public-data/sf-bike-share?filter=solution-type:dataset&filter=category:transportation&project=data-eng-project-313222
+
 
 ### Using the starter project
 
