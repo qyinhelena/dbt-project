@@ -3,6 +3,7 @@ version: 2
 
 # sources:
 #   - name: san_francisco
+#     database: bigquery-public-data
 #     schema: public
 #     tables:
 #       - name: bikeshare_trips
@@ -11,9 +12,13 @@ version: 2
 
 models:
     - name: bikeshare_stations
-      description: "make a copy of the stations table"
+      description: make a copy of the sf bikeshare stations table from the bq public dataset
       columns:
           - name: station_id
+            description: Primary key
+            tests:
+              - unique
+              - not_null
           - name: name
           - name: latitude
           - name: longitude
@@ -22,9 +27,10 @@ models:
           - name: installation_date
 
     - name: bikeshare_trips
-      description: "make a copy of the trips table"
+      description: make a copy of the sf bikeshare trips table from the bq public dataset
       columns:
           - name: trip_id
+            description: Primary key
             tests:
               - unique
               - not_null
@@ -39,16 +45,172 @@ models:
           - name: end_station_id
           - name: bike_number
           - name: zip_code
-            tests:
-              - not_null
           - name: subscriber_type
 
-    # - name: my_second_dbt_model
-    #   description: "A starter dbt model"
-    #   columns:
-    #       - name: id
-    #         description: "The primary key for this table"
-    #         tests:
-    #             - unique
-    #             - not_null
+    - name: sameStartEndTrips
+      description: incremental view of trips with same origin and destination
+      columns:
+        - name: trip_id
+          description: Primary key
+          tests:
+            - unique
+            - not_null
+        - name: duration_sec
+          tests: 
+            - not_null
+        - name: start_date
+        - name: start_station_name
+        - name: start_station_id
+        - name: end_date
+        - name: end_station_name
+        - name: end_station_id
+        - name: bike_number
+        - name: zip_code
+        - name: subscriber_type
+        - name: year
+          description: year of the trip (from 2013 to 2018)
+        - name: month
+          description: month of the trip (from 1 to 12)
+        - name: dayofweek
+          description: day of week of the trip (1-7 represents Sunday to Saturday)
+    
+    - name: tripsZipcode
+      description: view of trips with same origin and destination and group by zipcode
+      columns:
+        - name: zip_code
+          description: unique identifier
+          tests:
+            - unique
+        - name: num_trips
+          description: num of trips logged in zip code
+        - name: num_stations
+          description: num of unique stations in zipcode
+        - name: avg_duration
+          description: average duartion of trips
+        - name: filled_zipcode
+          description: new column filled null with 0 in zipcode, can further interpolate
+    
+    - name: diffStartEndTrips
+      description: incremental view of trips with different origin and destination
+      columns:
+        - name: trip_id
+          description: unique identifier for the trip
+          tests:
+            - unique
+            - not_null
+        - name: duration_sec
+          tests: 
+            - not_null
+        - name: start_date
+        - name: start_station_name
+        - name: start_station_id
+        - name: end_date
+        - name: end_station_name
+        - name: end_station_id
+        - name: bike_number
+        - name: zip_code
+        - name: subscriber_type
+        - name: year
+          description: year of the trip (from 2013 to 2018)
+        - name: month
+          description: month of the trip (from 1 to 12)
+        - name: dayofweek
+          description: day of week of the trip (1-7 represents Sunday to Saturday)
 
+    - name: diffTripsInfo
+      description: view of trips of different origin and destination, additional info on station locations and distance of trips
+      columns:
+        - name: trip_id
+          description: unique identifier for the trip
+          tests:
+            - unique
+            - not_null
+        - name: duration_sec
+          tests: 
+            - not_null
+        - name: start_date
+        - name: start_station_name
+        - name: start_station_id
+        - name: end_date
+        - name: end_station_name
+        - name: end_station_id
+        - name: bike_number
+        - name: zip_code
+        - name: subscriber_type
+        - name: year
+          description: year of the trip (from 2013 to 2018)
+        - name: month
+          description: month of the trip (from 1 to 12)
+        - name: dayofweek
+          description: day of week of the trip (1-7 represents Sunday to Saturday)
+        - name: start_lat
+          description: latitude of start station
+        - name: start_lon
+          description: longitude of start station
+        - name: start_landmark
+          description: landmark of start station
+        - name: end_lat
+          description: latitude of end station
+        - name: end_lon
+          description: longitude of end station
+        - name: end_landmark
+          description: landmark of end station
+        - name: geo_start
+          description: geolocation of start station
+        - name: geo_end
+          description: geolocation of end station
+        - name: distance_meters
+          description: distance between origin and destination, aka start station and end station
+
+    - name: top5distStart
+      description: top 5 distance from start to end station, group by start station
+      columns:
+        - name: start_landmark
+        - name: start_station_id
+        - name: end_landmark
+        - name: end_station_id
+        - name: distance_meters
+          tests:
+            - not_null
+        - name: distance_rank
+
+    - name: top5distEnd
+      description: top 5 distance from start to end station, group by end station
+      columns:
+        - name: end_landmark
+        - name: end_station_id  
+        - name: start_landmark
+        - name: start_station_id
+        - name: distance_meters
+          tests:
+            - not_null
+        - name: distance_rank
+
+    - name: top5duraStart
+      description: top 5 duration of trips from start to end station, group by start station
+      columns:
+        - name: start_landmark
+        - name: start_station_id
+        - name: duration_sec
+          tests:
+            - not_null
+        - name: duration_rank
+
+    - name: top5duraEnd
+      description: top 5 duration of trips from start to end station, group by end station
+      columns:
+        - name: end_landmark
+        - name: end_station_id
+        - name: duration_sec
+          tests:
+            - not_null
+        - name: duration_rank
+    
+    - name: topdistland
+      description: longest distance of trips between landmark(s), group by unique pair of start and end landmark(s)
+      columns:
+        - name: start_landmark
+        - name: end_landmark
+        - name: longest_distance
+          tests:
+            - not_null
