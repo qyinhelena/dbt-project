@@ -1,13 +1,13 @@
 WITH add_start_loc AS (
     SELECT d.*, s.latitude AS start_lat, s.longitude AS start_lon, s.landmark AS start_landmark
-    FROM {{ ref('diffStartEndTrips') }} AS d, {{ ref('bikeshare_stations')}} AS s
-    WHERE s.station_id = d.start_station_id
+    FROM {{ ref('diffStartEndTrips') }} AS d LEFT JOIN {{ ref('bikeshare_stations')}} AS s
+    ON s.station_id = d.start_station_id
 ),
 
 add_end_loc AS (
     SELECT a.*, s.latitude AS end_lat, s.longitude AS end_lon, s.landmark AS end_landmark
-    FROM add_start_loc AS a, {{ ref('bikeshare_stations')}} AS s
-    WHERE s.station_id = a.end_station_id
+    FROM add_start_loc AS a LEFT JOIN {{ ref('bikeshare_stations')}} AS s
+    ON s.station_id = a.end_station_id
 )
 
 SELECT *,
