@@ -73,7 +73,17 @@ models:
           description: month of the trip (from 1 to 12)
         - name: dayofweek
           description: day of week of the trip (1-7 represents Sunday to Saturday)
-    
+
+    - name: sameTripsTop5dura
+      description: view of top 5 duration trips with same origin and destination, group by station id
+      columns:
+        - name: start_landmark
+        - name: start_station_id
+        - name: duration_sec
+          tests:
+            - not_null
+        - name: duration_rank
+
     - name: tripsZipcode
       description: view of trips with same origin and destination and group by zipcode
       columns:
